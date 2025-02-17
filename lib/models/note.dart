@@ -4,8 +4,8 @@
  * @property id The unique identifier for the note.
  * @property title The title of the note.
  * @property content The content of the note.
- * @property createdAt The date when the note was created (time is set to midnight).
- * @property isDone Whether the note has been marked as done.
+ * @property createdAt The date when the note was created (time set to midnight).
+ * @property isDone Whether the note is marked as done.
  */
 class Note {
   final int id;
@@ -14,15 +14,6 @@ class Note {
   final DateTime createdAt;
   final bool isDone;
 
-  /**
-   * Constructs a new [Note] instance.
-   *
-   * @param id the unique identifier for the note.
-   * @param title the title of the note.
-   * @param content the content of the note.
-   * @param createdAt the date when the note was created (time set to midnight).
-   * @param isDone indicates if the note is marked as done.
-   */
   Note({
     required this.id,
     required this.title,
@@ -31,12 +22,7 @@ class Note {
     this.isDone = false,
   });
 
-  /**
-   * Converts a map from the database into a [Note] instance.
-   *
-   * @param map The map representing a note.
-   * @return a new [Note] instance.
-   */
+  /// Creates a new Note instance from a map.
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
@@ -47,11 +33,7 @@ class Note {
     );
   }
 
-  /**
-   * Converts a [Note] instance into a map for database insertion.
-   *
-   * @return a map representation of the note.
-   */
+  /// Converts a Note instance to a map.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -62,12 +44,7 @@ class Note {
     };
   }
 
-  /**
-   * Creates a copy of this note with optional changes.
-   *
-   * @param isDone Optional new done state.
-   * @return a new [Note] instance with updated values.
-   */
+  /// Returns a copy of this note with optionally modified values.
   Note copyWith({bool? isDone}) {
     return Note(
       id: id,

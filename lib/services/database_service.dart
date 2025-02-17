@@ -3,36 +3,25 @@ import 'package:path/path.dart';
 import '../models/note.dart';
 
 /**
- * A service class for handling local database operations.
- *
- * Uses the sqflite package to manage a SQLite database.
+ * Handles local SQLite database operations.
  */
 class DatabaseService {
   Database? _database;
 
-  /**
-   * Retrieves the singleton instance of the database.
-   *
-   * @return a [Database] instance.
-   */
+  /// Returns the existing database or initializes it.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  /**
-   * Initializes the SQLite database.
-   *
-   * @return the newly created [Database] instance.
-   */
+  /// Initializes the SQLite database.
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'postponador.db');
+    String dbPath = join(await getDatabasesPath(), 'postponador.db');
     return await openDatabase(
-      path,
+      dbPath,
       version: 1,
       onCreate: (db, version) async {
-        // Create the notes table with an isDone column.
         await db.execute('''
           CREATE TABLE notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,22 +35,14 @@ class DatabaseService {
     );
   }
 
-  /**
-   * Retrieves all notes from the database.
-   *
-   * @return a list of [Note] objects retrieved from the database.
-   */
+  /// Retrieves all notes.
   Future<List<Note>> getNotes() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('notes');
     return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
-  /**
-   * Inserts a new note into the database.
-   *
-   * @param note the [Note] object to be inserted.
-   */
+  /// Inserts a new note.
   Future<void> insertNote(Note note) async {
     final db = await database;
     await db.insert(
@@ -76,11 +57,7 @@ class DatabaseService {
     );
   }
 
-  /**
-   * Updates an existing note in the database.
-   *
-   * @param note the [Note] object with updated information.
-   */
+  /// Updates an existing note.
   Future<void> updateNote(Note note) async {
     final db = await database;
     await db.update(
@@ -88,6 +65,16 @@ class DatabaseService {
       note.toMap(),
       where: 'id = ?',
       whereArgs: [note.id],
+    );
+  }
+
+  /// Deletes a note by its id.
+  Future<void> deleteNote(int id) async {
+    final db = await database;
+    await db.delete(
+      'notes',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 }

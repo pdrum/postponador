@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'view_models/note_view_model.dart';
-import 'views/chat_note_screen.dart';
+import 'views/calendar_note_screen.dart';
 
 /**
  * The main entry point of the Postponador app.
@@ -23,7 +23,7 @@ class PostponadorApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ChatNoteScreen(noteViewModel: noteViewModel),
+      home: CalendarNoteScreen(noteViewModel: noteViewModel),
     );
   }
 }

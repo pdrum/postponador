@@ -2,53 +2,31 @@ import '../models/note.dart';
 import '../services/database_service.dart';
 
 /**
- * The ViewModel responsible for managing notes within the Postponador app.
- *
- * Handles business logic and data manipulation for the notes.
+ * Manages note data and business logic.
  */
 class NoteViewModel {
   final DatabaseService _databaseService;
 
   List<Note> _notes = [];
 
-  /**
-   * Constructs a new [NoteViewModel] instance.
-   *
-   * @param databaseService The service handling database operations.
-   * If not provided, a default instance is used.
-   */
   NoteViewModel({DatabaseService? databaseService})
       : _databaseService = databaseService ?? DatabaseService();
 
-  /**
-   * Retrieves the current list of notes.
-   *
-   * @return a list of [Note] objects.
-   */
+  /// Gets the current list of notes.
   List<Note> get notes => _notes;
 
-  /**
-   * Loads all notes from the local database.
-   */
+  /// Loads notes from the database.
   Future<void> loadNotes() async {
     _notes = await _databaseService.getNotes();
   }
 
-  /**
-   * Adds a new note to both the local list and the database.
-   *
-   * @param note the [Note] object to add.
-   */
+  /// Adds a new note.
   Future<void> addNote(Note note) async {
     await _databaseService.insertNote(note);
     _notes.add(note);
   }
 
-  /**
-   * Updates a note (e.g., toggling its done state) in both the local list and the database.
-   *
-   * @param note the updated [Note] object.
-   */
+  /// Updates a note.
   Future<void> updateNote(Note note) async {
     await _databaseService.updateNote(note);
     int index = _notes.indexWhere((n) => n.id == note.id);
@@ -57,11 +35,13 @@ class NoteViewModel {
     }
   }
 
-  /**
-   * Toggles the done state of a note.
-   *
-   * @param note the [Note] object to toggle.
-   */
+  /// Deletes a note.
+  Future<void> deleteNote(Note note) async {
+    await _databaseService.deleteNote(note.id);
+    _notes.removeWhere((n) => n.id == note.id);
+  }
+
+  /// Toggles the done state of a note.
   Future<void> toggleNoteDone(Note note) async {
     final updatedNote = note.copyWith(isDone: !note.isDone);
     await updateNote(updatedNote);
