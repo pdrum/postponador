@@ -6,8 +6,9 @@ import '../view_models/note_view_model.dart';
 /**
  * A calendar-like screen for taking notes.
  *
- * Displays notes for the selected date with inline navigation. A "go to today"
- * control appears next to the date when the displayed date isn’t today.
+ * Displays notes for the selected date with inline navigation. Tapping the date
+ * opens a date picker. A "go to today" control appears next to the date when the
+ * displayed date isn’t today.
  */
 class CalendarNoteScreen extends StatefulWidget {
   final NoteViewModel noteViewModel;
@@ -60,15 +61,31 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
     _loadNotesForDate(_selectedDate);
   }
 
+  /// Opens a date picker dialog and updates _selectedDate upon selection.
+  Future<void> _pickDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000), // Adjust as needed
+      lastDate: DateTime(2100),  // Adjust as needed
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        // Ensure time is set to midnight.
+        _selectedDate = DateTime(picked.year, picked.month, picked.day);
+      });
+      _loadNotesForDate(_selectedDate);
+    }
+  }
+
   /// Adds a new note for the selected date.
   Future<void> _addNewNote() async {
     final text = _noteController.text.trim();
     if (text.isEmpty) return;
 
-    // Use the selected date (with time set to midnight)
     final noteDate = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
     final newNote = Note(
-      id: 0, // Database auto-generates ID.
+      id: 0, // Database will auto-generate ID.
       title: 'Note',
       content: text,
       createdAt: noteDate,
@@ -115,7 +132,7 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
       ),
       body: Column(
         children: [
-          // Date navigation row with inline "go to today" control.
+          // Date navigation row with inline "go to today" control and date picker.
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
             child: Row(
@@ -126,34 +143,40 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
                 ),
                 Expanded(
                   child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          dateString,
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        // Inline "go to today" icon and text appear only if not today.
-                        if (!isToday)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: TextButton.icon(
-                              onPressed: _goToToday,
-                              icon: const Icon(Icons.flash_on, size: 16, color: Colors.black54),
-                              label: const Text(
-                                "Today",
-                                style: TextStyle(fontSize: 14, color: Colors.black54),
-                              ),
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.grey.shade200,
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    child: GestureDetector(
+                      onTap: _pickDate, // Tapping the date opens the date picker.
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            dateString,
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          // Inline "go to today" icon and text appear only if not today.
+                          if (!isToday)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: TextButton.icon(
+                                onPressed: _goToToday,
+                                icon: const Icon(Icons.flash_on,
+                                    size: 16, color: Colors.black54),
+                                label: const Text(
+                                  "Today",
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black54),
+                                ),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade200,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -187,25 +210,26 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
                     ),
                     child: Row(
                       children: [
-                        // Display checkmark if done; otherwise, a bullet.
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: Icon(
-                            note.isDone ? Icons.check_circle : Icons.fiber_manual_record,
-                            color: note.isDone ? Colors.green : Colors.black54,
+                            note.isDone
+                                ? Icons.check_circle
+                                : Icons.fiber_manual_record,
+                            color:
+                            note.isDone ? Colors.green : Colors.black54,
                             size: 20,
                           ),
                         ),
-                        // Note text.
                         Expanded(
                           child: Text(
                             note.content,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
-                        // Delete icon in softer pastel red.
                         IconButton(
-                          icon: const Icon(Icons.delete, color: Color(0xFFEF9A9A), size: 20),
+                          icon: const Icon(Icons.delete,
+                              color: Color(0xFFEF9A9A), size: 20),
                           onPressed: () => _deleteNote(note),
                         ),
                       ],
