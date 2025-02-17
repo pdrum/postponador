@@ -22,7 +22,7 @@ class Note {
     this.isDone = false,
   });
 
-  /// Creates a new Note instance from a map.
+  /// Creates a Note from a Map.
   factory Note.fromMap(Map<String, dynamic> map) {
     return Note(
       id: map['id'],
@@ -33,7 +33,7 @@ class Note {
     );
   }
 
-  /// Converts a Note instance to a map.
+  /// Converts a Note to a Map.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -44,7 +44,7 @@ class Note {
     };
   }
 
-  /// Returns a copy of this note with optionally modified values.
+  /// Returns a copy of this Note with updated values.
   Note copyWith({bool? isDone}) {
     return Note(
       id: id,

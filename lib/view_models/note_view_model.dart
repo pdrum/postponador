@@ -12,7 +12,7 @@ class NoteViewModel {
   NoteViewModel({DatabaseService? databaseService})
       : _databaseService = databaseService ?? DatabaseService();
 
-  /// Gets the current list of notes.
+  /// Returns the list of notes.
   List<Note> get notes => _notes;
 
   /// Loads notes from the database.
@@ -30,9 +30,7 @@ class NoteViewModel {
   Future<void> updateNote(Note note) async {
     await _databaseService.updateNote(note);
     int index = _notes.indexWhere((n) => n.id == note.id);
-    if (index != -1) {
-      _notes[index] = note;
-    }
+    if (index != -1) _notes[index] = note;
   }
 
   /// Deletes a note.

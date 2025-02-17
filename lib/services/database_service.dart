@@ -8,7 +8,7 @@ import '../models/note.dart';
 class DatabaseService {
   Database? _database;
 
-  /// Returns the existing database or initializes it.
+  /// Retrieves or initializes the database.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -17,9 +17,9 @@ class DatabaseService {
 
   /// Initializes the SQLite database.
   Future<Database> _initDatabase() async {
-    String dbPath = join(await getDatabasesPath(), 'postponador.db');
+    String path = join(await getDatabasesPath(), 'postponador.db');
     return await openDatabase(
-      dbPath,
+      path,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
