@@ -4,7 +4,7 @@
  * @property id The unique identifier for the note.
  * @property title The title of the note.
  * @property content The content of the note.
- * @property createdAt The timestamp when the note was created.
+ * @property createdAt The date when the note was created (time is set to midnight).
  * @property isDone Whether the note has been marked as done.
  */
 class Note {
@@ -20,7 +20,7 @@ class Note {
    * @param id the unique identifier for the note.
    * @param title the title of the note.
    * @param content the content of the note.
-   * @param createdAt the timestamp when the note was created.
+   * @param createdAt the date when the note was created (time set to midnight).
    * @param isDone indicates if the note is marked as done.
    */
   Note({
@@ -43,7 +43,7 @@ class Note {
       title: map['title'],
       content: map['content'],
       createdAt: DateTime.parse(map['createdAt']),
-      isDone: map['isDone'] == 1, // 1 means true, 0 false
+      isDone: map['isDone'] == 1,
     );
   }
 
@@ -66,7 +66,7 @@ class Note {
    * Creates a copy of this note with optional changes.
    *
    * @param isDone Optional new done state.
-   * @return a new [Note] instance with the updated values.
+   * @return a new [Note] instance with updated values.
    */
   Note copyWith({bool? isDone}) {
     return Note(

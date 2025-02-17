@@ -14,7 +14,6 @@ class FakeDatabaseService extends DatabaseService {
 
   @override
   Future<void> insertNote(Note note) async {
-    // Simulate auto-increment by simply adding the note.
     fakeNotes.add(note);
   }
 

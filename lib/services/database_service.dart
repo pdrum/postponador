@@ -5,7 +5,7 @@ import '../models/note.dart';
 /**
  * A service class for handling local database operations.
  *
- * This class uses the sqflite package to manage a SQLite database.
+ * Uses the sqflite package to manage a SQLite database.
  */
 class DatabaseService {
   Database? _database;
@@ -32,7 +32,7 @@ class DatabaseService {
       path,
       version: 1,
       onCreate: (db, version) async {
-        // Updated table schema with isDone column.
+        // Create the notes table with an isDone column.
         await db.execute('''
           CREATE TABLE notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

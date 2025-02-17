@@ -4,7 +4,7 @@ import '../services/database_service.dart';
 /**
  * The ViewModel responsible for managing notes within the Postponador app.
  *
- * It handles the business logic and data manipulation for the notes.
+ * Handles business logic and data manipulation for the notes.
  */
 class NoteViewModel {
   final DatabaseService _databaseService;
@@ -51,7 +51,6 @@ class NoteViewModel {
    */
   Future<void> updateNote(Note note) async {
     await _databaseService.updateNote(note);
-    // Update local list: find the note by id and replace it.
     int index = _notes.indexWhere((n) => n.id == note.id);
     if (index != -1) {
       _notes[index] = note;

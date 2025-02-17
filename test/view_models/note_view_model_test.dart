@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:postponador/models/note.dart';
 import 'package:postponador/view_models/note_view_model.dart';
-import '../fake_database_service.dart';
+import '../../test/fake_database_service.dart';
 
 void main() {
   group('NoteViewModel', () {
@@ -29,7 +29,7 @@ void main() {
       final note = Note(
         id: 2,
         title: 'Another Note',
-        content: 'Another content',
+        content: 'More content',
         createdAt: DateTime.now(),
       );
       await fakeDatabaseService.insertNote(note);

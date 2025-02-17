@@ -6,9 +6,9 @@ void main() {
     test('toMap and fromMap work correctly including isDone', () {
       final note = Note(
         id: 1,
-        title: 'Test',
+        title: 'Test Note',
         content: 'This is a test note',
-        createdAt: DateTime.parse('2025-02-16T12:00:00'),
+        createdAt: DateTime.parse('2025-02-16T00:00:00'),
         isDone: true,
       );
       final map = note.toMap();
