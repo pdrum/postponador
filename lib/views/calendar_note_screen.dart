@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/note.dart';
-import '../view_models/note_view_model.dart';
+import '../../models/note.dart';
+import '../../view_models/note_view_model.dart';
+import 'components/date_navigation_row.dart';
+import 'components/notes_list.dart';
+import 'components/input_area.dart';
 
-/**
- * A calendar-like screen for taking notes.
- *
- * Displays notes for the selected date with inline navigation. Tapping the date
- * opens a date picker. A "go to today" control appears next to the date when the
- * displayed date isn’t today.
- */
+/// A calendar-like screen for taking notes.
+///
+/// This screen displays notes for a selected date, including date navigation,
+/// an inline "go to today" control, a list of notes, and a text input area.
+/// Tapping anywhere outside the input area will dismiss the keyboard.
 class CalendarNoteScreen extends StatefulWidget {
   final NoteViewModel noteViewModel;
 
+  /// Constructs a [CalendarNoteScreen] with the given [noteViewModel].
   const CalendarNoteScreen({Key? key, required this.noteViewModel}) : super(key: key);
 
   @override
@@ -33,7 +35,7 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
     _loadNotesForDate(_selectedDate);
   }
 
-  /// Loads notes for the given date.
+  /// Loads and filters notes for the given [date].
   Future<void> _loadNotesForDate(DateTime date) async {
     await widget.noteViewModel.loadNotes();
     setState(() {
@@ -61,31 +63,29 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
     _loadNotesForDate(_selectedDate);
   }
 
-  /// Opens a date picker dialog and updates _selectedDate upon selection.
+  /// Opens the date picker and updates the selected date if a new date is chosen.
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2000), // Adjust as needed
-      lastDate: DateTime(2100),  // Adjust as needed
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
-        // Ensure time is set to midnight.
         _selectedDate = DateTime(picked.year, picked.month, picked.day);
       });
       _loadNotesForDate(_selectedDate);
     }
   }
 
-  /// Adds a new note for the selected date.
+  /// Adds a new note for the selected date using the input from [_noteController].
   Future<void> _addNewNote() async {
     final text = _noteController.text.trim();
     if (text.isEmpty) return;
-
     final noteDate = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
     final newNote = Note(
-      id: 0, // Database will auto-generate ID.
+      id: 0, // Database will auto-generate the ID.
       title: 'Note',
       content: text,
       createdAt: noteDate,
@@ -96,19 +96,19 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
     _loadNotesForDate(_selectedDate);
   }
 
-  /// Toggles the done state of a note.
+  /// Toggles the "done" state of the given [note].
   Future<void> _toggleNote(Note note) async {
     await widget.noteViewModel.toggleNoteDone(note);
     _loadNotesForDate(_selectedDate);
   }
 
-  /// Deletes a note.
+  /// Deletes the given [note].
   Future<void> _deleteNote(Note note) async {
     await widget.noteViewModel.deleteNote(note);
     _loadNotesForDate(_selectedDate);
   }
 
-  /// Resets the view to today.
+  /// Resets the selected date to today's date.
   void _goToToday() {
     final now = DateTime.now();
     setState(() {
@@ -119,7 +119,7 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Updated date format: "Mon 15 Feb"
+    // Format date as "Mon 15 Feb".
     final dateString = DateFormat('EEE d MMM').format(_selectedDate);
     final isToday = _selectedDate ==
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
@@ -130,151 +130,34 @@ class _CalendarNoteScreenState extends State<CalendarNoteScreen> {
         title: const Text('Postponador'),
         backgroundColor: const Color(0xFFC8E6C9), // Pastel green.
       ),
-      body: Column(
-        children: [
-          // Date navigation row with inline "go to today" control and date picker.
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_left, size: 32),
-                  onPressed: _goToPreviousDay,
-                ),
-                Expanded(
-                  child: Center(
-                    child: GestureDetector(
-                      onTap: _pickDate, // Tapping the date opens the date picker.
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            dateString,
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          // Inline "go to today" icon and text appear only if not today.
-                          if (!isToday)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextButton.icon(
-                                onPressed: _goToToday,
-                                icon: const Icon(Icons.flash_on,
-                                    size: 16, color: Colors.black54),
-                                label: const Text(
-                                  "Today",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.black54),
-                                ),
-                                style: TextButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade200,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0, vertical: 4.0),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_right, size: 32),
-                  onPressed: _goToNextDay,
-                ),
-              ],
+      // Wrap the body with a GestureDetector to dismiss the keyboard on tap.
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Column(
+          children: [
+            DateNavigationRow(
+              dateString: dateString,
+              isToday: isToday,
+              onPrevious: _goToPreviousDay,
+              onNext: _goToNextDay,
+              onPickDate: _pickDate,
+              onGoToToday: _goToToday,
             ),
-          ),
-          // List of notes.
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              itemCount: _filteredNotes.length,
-              itemBuilder: (context, index) {
-                final note = _filteredNotes[index];
-                return GestureDetector(
-                  onTap: () => _toggleNote(note),
-                  child: Container(
-                    key: Key('note_${note.id}'),
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    padding: const EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFBBDEFB), // Pastel blue.
-                      borderRadius: BorderRadius.circular(12.0),
-                      border: Border.all(
-                        color: const Color(0xFF64B5F6),
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Icon(
-                            note.isDone
-                                ? Icons.check_circle
-                                : Icons.fiber_manual_record,
-                            color:
-                            note.isDone ? Colors.green : Colors.black54,
-                            size: 20,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            note.content,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete,
-                              color: Color(0xFFEF9A9A), size: 20),
-                          onPressed: () => _deleteNote(note),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            Expanded(
+              child: NotesList(
+                notes: _filteredNotes,
+                onToggle: _toggleNote,
+                onDelete: _deleteNote,
+              ),
             ),
-          ),
-          // Input field for new note.
-          Container(
-            margin: const EdgeInsets.only(
-                left: 12.0, right: 12.0, bottom: 40.0, top: 12.0),
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-            decoration: BoxDecoration(
-              color: const Color(0xFFC8E6C9), // Pastel green.
-              borderRadius: BorderRadius.circular(8.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+            InputArea(
+              noteController: _noteController,
+              onSubmit: _addNewNote,
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _noteController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your note for this date...',
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.black54),
-                  onPressed: _addNewNote,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
