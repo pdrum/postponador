@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 /// A widget that provides a text input area with a send button.
 ///
-/// This component is used to add new notes for the selected date.
+/// This component is used to add new notes for the selected date. When the
+/// send button is pressed, the keyboard will collapse.
 class InputArea extends StatelessWidget {
   final TextEditingController noteController;
   final VoidCallback onSubmit;
@@ -38,14 +39,19 @@ class InputArea extends StatelessWidget {
             child: TextField(
               controller: noteController,
               decoration: const InputDecoration(
-                hintText: 'Your note goes here...',
+                hintText: "What's on your mind today?",
                 border: InputBorder.none,
               ),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.send, color: Colors.black54),
-            onPressed: onSubmit,
+            onPressed: () {
+              // Collapse the keyboard
+              FocusScope.of(context).unfocus();
+              // Then submit the note
+              onSubmit();
+            },
           ),
         ],
       ),
