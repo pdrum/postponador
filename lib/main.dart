@@ -22,6 +22,9 @@ class PostponadorApp extends StatelessWidget {
       title: 'Postponador',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: Theme.of(context).textTheme.apply(
+          fontFamily: 'PatrickHand',
+        ),
       ),
       home: CalendarNoteScreen(noteViewModel: noteViewModel),
     );

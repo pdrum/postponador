@@ -39,7 +39,7 @@ class InputArea extends StatelessWidget {
             child: TextField(
               controller: noteController,
               decoration: const InputDecoration(
-                hintText: "What's on your mind today?",
+                hintText: "What's on your mind lately?",
                 border: InputBorder.none,
               ),
             ),
